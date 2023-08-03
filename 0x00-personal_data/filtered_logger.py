@@ -94,3 +94,30 @@ def get_db() -> connection.MySQLConnection:
             host=db_host
         )
     return connector
+
+
+def main():
+    """
+    function to get rows from the user table and display
+    them to the console
+    """
+    connector = get_db()
+    cursor = connector.cursor()
+    logger = get_logger()
+
+    query = "SELECT * FROM users"
+    cusor.execute(query)
+    all_rows = cusor.fetchall()
+
+    for row in all_rows:
+        field_1 = "name={}, email={}, phone={}, ssn={}, "
+        field2 = "password={}, ip={}, last_login={}, user_agent={}"
+        fields = field1 + field2
+        fields = fields.format(
+                row[0], row[1], row[2], row[3],
+                row[4], row[5], row[6], row[7])
+        logger.info(fields)
+
+
+if __name__ == "__main__":
+    main()
