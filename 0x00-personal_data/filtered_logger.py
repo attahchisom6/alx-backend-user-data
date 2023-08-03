@@ -5,6 +5,7 @@ fgacility that determines where the log output
 its content
 """
 import re
+import logging
 from typing import List
 
 
@@ -27,3 +28,19 @@ def filter_datum(
     line_pattern = r"({})=[^{}]*".format(field_pattern, separator)
     re_daction = r"\1={}".format(redaction)
     return re.sub(line_pattern, re_daction, message)
+
+
+class RedactionFormatter(logging.Formatter):
+    """
+    redaction formatter class
+    """
+    REDACTION = "***"
+    FORMAT = "[Holberton] %(name) %(levelname) %(asctime)s - 15s: %(message)s"
+
+    def __init__(self):
+        """
+        object factory: generating redaction object
+        """
+        super(RedactionFormatter, self).__init__(self)
+
+    def format(record: logging.Lo
