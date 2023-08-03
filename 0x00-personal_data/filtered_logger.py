@@ -23,6 +23,6 @@ def filter_datum(
         in the log line are delimited in the log line (message)
     """
     field_pattern = "|".join(fields)
-    line_pattern = r"({})=[^{}]*".format(fields, separator)
-    redaction = r"\1={}".format(redaction)
-    return re.sub(line_pattern, redaction, message)
+    line_pattern = r"({})=[^{}]*".format(field_pattern, separator)
+    re_daction = r"\1={}".format(redaction)
+    return re.sub(line_pattern, re_daction, message)
