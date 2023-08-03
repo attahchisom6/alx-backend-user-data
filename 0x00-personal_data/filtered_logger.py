@@ -9,7 +9,8 @@ from typing import List
 
 
 def filter_datum(
-        fields: List, redaction: str, message: str, separator: str):
+        fields: List[str], redaction: str, message: str,
+        separator: str) -> str:
     """
     function to obfuscate/hide relevant information
     of a field
