@@ -9,7 +9,7 @@ from typing import List
 
 
 def filter_datum(
-        fields: List[str], redaction: str, message: str,
+        fields: List, redaction: str, message: str,
         separator: str) -> str:
     """
     function to obfuscate/hide relevant information
@@ -25,4 +25,5 @@ def filter_datum(
     """
     field_pattern = "|".join(fields)
     line_pattern = r"({})=[^{}]*".format(field_pattern, separator)
-    return re.sub(line_pattern, r"\1={}".format(redaction), message)
+    re_daction = r"\1={}".format(redaction)
+    return re.sub(line_pattern, re_daction, message)
