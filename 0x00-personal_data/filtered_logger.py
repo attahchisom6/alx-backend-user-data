@@ -1,114 +1,126 @@
 #!/usr/bin/env python3
-"""filtered_logger module
 """
-import logging
-import os
+create a filter, a filter provides a fine grained
+fgacility that determines where the log output
+its content
+"""
 import re
+import logging
 from typing import List
-import mysql.connector
+from os import getenv
+from mysql.connector import connection
 
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
 
-def filter_datum(fields: List[str], redaction: str,
-                 message: str, separator: str) -> str:
-    """filtered_logger function that,
-    given a list of fields, replaces them with a redaction
-
-    Args:
-        fields (list): list of strings representing
-        all fields to obfuscate
-        redaction (str): string representing by
-        what the field will be obfuscated
-        message (str): string representing the log line
-
-    Returns:
-        str: log message obfuscated
+def filter_datum(
+        fields: List[str], redaction: str, message: str,
+        separator: str) -> str:
     """
-    for field in fields:
-        message = re.sub(field + "=.*?" + separator,
-                         field + "=" + redaction + separator, message)
-    return message
+    function to obfuscate/hide relevant information
+    of a field
+    Args:
+        field: list of strings representing all
+        field to obfuscate
+        redaction: a string representing by what the
+        string will be obfuscated
+        message: a string representing the log line
+        separator: a string representing by which the field
+        in the log line are delimited in the log line (message)
+    """
+    field_pattern = "|".join(fields)
+    line_pattern = r"({})=[^{}]*".format(field_pattern, separator)
+    re_daction = r"\1={}".format(redaction)
+    return re.sub(line_pattern, re_daction, message)
 
 
 class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class
-        """
-
+    """
+    redaction formatter class
+    """
     REDACTION = "***"
-    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
+    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)s-15s: %(message)s"
     SEPARATOR = ";"
 
     def __init__(self, fields: List[str]):
-        """init function
-
-        Args:
-            fields (list): list of strings representing
+        """
+        object factory: generating redaction object
         """
         super().__init__(self.FORMAT)
         self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
-        """format function that filter values in incoming log records
-        using filter_datum function
-
-        Args:
-            record (logging.LogRecord): log record
-
-        Returns:
-            str: log message obfuscated
         """
-        return filter_datum(self.fields, self.REDACTION,
-                            super().format(record), self.SEPARATOR)
+        method to filter values in incoming log records using filter_datum
+        """
+        return filter_datum(
+                self.fields,
+                self.REDACTION,
+                super().format(record),
+                self.SEPARATOR)
 
 
+# This a function not a method
 def get_logger() -> logging.Logger:
-    """get_logger function that takes no arguments and
-    returns a logging.Logger object
-
-    Returns:
-        logging.Logger: object
+    """
+    A function that takes no argument but returns a login.Logger object
     """
     logger = logging.getLogger("user_data")
     logger.setLevel(logging.INFO)
     logger.propagate = False
-    handler = logging.StreamHandler()
     formatter = RedactingFormatter(PII_FIELDS)
+    handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+
     return logger
 
 
-def get_db() -> mysql.connector.connection.MySQLConnection:
-    """get_db function that returns a connector to the database
-
-    Returns:
-        mysql.connector.connection.MySQLConnection: connector to the database
+def get_db() -> connection.MySQLConnection:
     """
-    user = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
-    password = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
-    host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
-    database = os.getenv("PERSONAL_DATA_DB_NAME")
-    return mysql.connector.connect(user=user, password=password,
-                                   host=host, database=database)
+    function that returns a connector to the database
+    """
+    # note: os.getenv does the same thing
+    username = getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    password = getenv("PERSONAL_DATA_DB_PASSWORD", "")
+    db_host = getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    db_name = getenv("PERSONAL_DATA_DB_NAME")
+
+    connector = connection.MySQLConnection(
+            user=username,
+            password=password,
+            database=db_name,
+            host=db_host
+        )
+    return connector
 
 
 def main():
-    """main function that connects to the database and retrieves all rows
-    in the users table and display each row under a filtered format
     """
-    conn = get_db()
+    function to get rows from the user table and display
+    them to the console
+    """
+    connector = get_db()
+    cursor = connector.cursor()
     logger = get_logger()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users;")
-    fields = cursor.column_names
-    for row in cursor:
-        message = "".join(f"{f}={str(r)}" for f, r in zip(fields, row))
-        logger.info(message.strip())
+
+    query = "SELECT * FROM users"
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+
+    for row in all_rows:
+        field_1 = "name={}, email={}, phone={}, ssn={}, "
+        field_2 = "password={}, ip={}, last_login={}, user_agent={}"
+        fields = field_1 + field_2
+        fields = fields.format(
+                row[0], row[1], row[2], row[3],
+                row[4], row[5], row[6], row[7])
+        logger.info(fields)
+
     cursor.close()
-    conn.close()
+    connector.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
