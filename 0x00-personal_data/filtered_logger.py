@@ -118,6 +118,9 @@ def main():
                 row[4], row[5], row[6], row[7])
         logger.info(fields)
 
+    cursor.close()
+    connector.close()
+
 
 if __name__ == "__main__":
     main()
