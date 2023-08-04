@@ -9,11 +9,18 @@ import logging
 from typing import List
 from os import getenv
 from mysql.connector import connection
+""" Personal data project """
+from typing import List
+import re
+import logging
+import os
+import mysql.connector
 
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
 
+<<<<<<< HEAD
 def filter_datum(
         fields: List[str], redaction: str, message: str,
         separator: str) -> str:
@@ -33,6 +40,15 @@ def filter_datum(
     line_pattern = r"({})=[^{}]*".format(field_pattern, separator)
     re_daction = r"\1={}".format(redaction)
     return re.sub(line_pattern, re_daction, message)
+def filter_datum(fields: List[str],
+                 redaction: str,
+                 message: str,
+                 separator: str) -> str:
+    """ returns the log message obfuscated """
+    for i in fields:
+        message = re.sub(fr'{i}=.+?{separator}',
+                         f'{i}={redaction}{separator}', message)
+    return message
 
 
 class RedactingFormatter(logging.Formatter):
@@ -44,11 +60,16 @@ class RedactingFormatter(logging.Formatter):
     SEPARATOR = ";"
 
     def __init__(self, fields: List[str]):
+
         """
         object factory: generating redaction object
         """
         super().__init__(self.FORMAT)
+
+        """ constructor method """
+
         self.fields = fields
+        super(RedactingFormatter, self).__init__(self.FORMAT)
 
     def format(self, record: logging.LogRecord) -> str:
         """
@@ -59,6 +80,11 @@ class RedactingFormatter(logging.Formatter):
                 self.REDACTION,
                 super().format(record),
                 self.SEPARATOR)
+        """ filter values in a log record"""
+        return filter_datum(self.fields,
+                            self.REDACTION,
+                            super().format(record),
+                            self.SEPARATOR
 
 
 # This a function not a method
@@ -120,7 +146,45 @@ def main():
 
     cursor.close()
     connector.close()
+    """ return logging.Logger object """
+    obj = logging.getLogger("user_data")
+    obj.setLevel(logging.INFO)
+    obj.propagate = False
+    handler = logging.StreamHandler()
+    handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
+    obj.addHandler(handler)
+    return obj
+
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """ return the connector of the database """
+    user_name = os.getenv('PERSONAL_DATA_DB_USERNAME')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST')
+    db_name = os.getenv('PERSONAL_DATA_DB_NAME')
+    return mysql.connector.connect(user=user_name,
+                                   password=password,
+                                   host=host,
+                                   database=db_name)
+
+
+def main():
+    """ main function """
+    conn = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * from users")
+    fields = [user[0] for user in cursor.description]
+    print(fields)
+
+    logger = get_logger()
+
+    for i in cursor:
+        list_row = ''.join(f'{f}={str(r)}; ' for r, f in zip(i, fields))
+        logger.info(i)
+
+    cursor.close()
+    db.close()
 
 
 if __name__ == "__main__":
-    main()
+    main()`
