@@ -106,13 +106,13 @@ def main():
     logger = get_logger()
 
     query = "SELECT * FROM users"
-    cusor.execute(query)
-    all_rows = cusor.fetchall()
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
 
     for row in all_rows:
         field_1 = "name={}, email={}, phone={}, ssn={}, "
-        field2 = "password={}, ip={}, last_login={}, user_agent={}"
-        fields = field1 + field2
+        field_2 = "password={}, ip={}, last_login={}, user_agent={}"
+        fields = field_1 + field_2
         fields = fields.format(
                 row[0], row[1], row[2], row[3],
                 row[4], row[5], row[6], row[7])
