@@ -7,7 +7,7 @@ its content
 import re
 import logging
 from typing import List
-from os import getenv
+from os import environ
 from mysql.connector import connection
 
 
@@ -82,10 +82,10 @@ def get_db() -> connection.MySQLConnection:
     function that returns a connector to the database
     """
     # note: os.getenv does the same thing
-    username = getenv("PERSONAL_DATA_DB_USERNAME", "root")
-    password = getenv("PERSONAL_DATA_DB_PASSWORD", "")
-    db_host = getenv("PERSONAL_DATA_DB_HOST", "localhost")
-    db_name = getenv("PERSONAL_DATA_DB_NAME")
+    username = environ.get("PERSONAL_DATA_DB_USERNAME", "root")
+    password = environ.get("PERSONAL_DATA_DB_PASSWORD", "")
+    db_host = environ.get("PERSONAL_DATA_DB_HOST", "localhost")
+    db_name = environ.get("PERSONAL_DATA_DB_NAME")
 
     connector = connection.MySQLConnection(
             user=username,
