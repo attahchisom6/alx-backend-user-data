@@ -7,6 +7,10 @@ from api.v1.views import app_views
 from flask import Flask, jsonify, abort, request
 from flask_cors import (CORS, cross_origin)
 import os
+from api.v1.auth.auth import Auth
+
+
+auth = None
 
 
 app = Flask(__name__)
@@ -14,10 +18,37 @@ app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
 
-@app.errorhandler(404)
-def not_found(error) -> str:
-    """ Not found handler
+auth_type = os.getenv("AUTH_TYPE")
+if auth_type:
+    auth = Auth()
+
+
+@app.before_request
+def handle_before_request():
     """
+    handles fistly certain action before a request is processed
+    """
+    if auth is None:
+        return
+
+    api_list = [
+            '/api/v1/status/',
+            '/api/v1/unauthorized/',
+            '/api/v1/forbidden/'
+        ]
+    if not auth.require_auth(request.path, api_list):
+        return
+
+    if auth.authorization_header(request) is None:
+        abort(401)
+
+    if auth.current_user(request) is None:
+        abort(403)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Not found handler"""
     return jsonify({"error": "Not found"}), 404
 
 

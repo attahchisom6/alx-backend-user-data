@@ -13,6 +13,7 @@ class Auth:
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """
         Check if authentication is required for the given path.
+        in this method we will define which routes doesn't need authentication
         Args:
         path (str): The path to check.
             excluded_paths (List[str]): List of excluded paths.
@@ -23,15 +24,16 @@ class Auth:
         if path is None:
             return True
 
-        slash_handler = [path, path + "/"]
+        handle_slashed_path = [path, path + "/"]
 
+        # all path in excluded path doesn't need authentication
         if not excluded_paths:
             return True
 
         for excluded in excluded_paths:
             if excluded.endswith('/') and excluded.startswith(path):
                 return False
-            if excluded in slash_handler:
+            if excluded in handle_slashed_path:
                 return False
 
         return True
@@ -40,7 +42,14 @@ class Auth:
         """
         handles header used by the client when making request
         """
-        return None
+        if request is None:
+            return None
+
+        key = "Authorization"
+        dictt_headers = request.headers
+        if key not in dictt_headers:
+            return None
+        return dictt_headers.get(key)
 
     def current_user(self, request: request = None) -> TypeVar('User'):
         """
