@@ -32,3 +32,11 @@ def unauthorized_route() -> None:
     returns a 401 error wen the unauthorized endpoint is called
     """
     abort(401)
+
+
+@app_views.route("/forbidden", methods=["GET"], strict_slashes=False)
+def forbidden_route():
+    """
+    this render 403 forbidden error when retricted are being requested
+    """
+    abort(403)
