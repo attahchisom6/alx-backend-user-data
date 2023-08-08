@@ -31,7 +31,7 @@ class Auth:
             return True
 
         for excluded in excluded_paths:
-            if excluded.endswith('*') and excluded.startswith(path):
+            if excluded.endswith('*') and path.startswith(excluded[:-1]):
                 return False
             if excluded in handle_slashed_path:
                 return False
