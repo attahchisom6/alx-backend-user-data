@@ -43,10 +43,12 @@ class BasicAuth(Auth):
 
         try:
             decoded_bytes = base64.b64decode(base64_authorization_header)
+            if isinstance(decoded_bytes, bytes):
+                return decoded_bytes.decode("utf-8")
         except Exception:
             return None
 
-        return decoded_bytes.decode("utf-8")
+        return None
 
     def extract_user_credentials(
             self,
@@ -105,9 +107,9 @@ class BasicAuth(Auth):
 
         bs64_header = self.extract_base64_authorization_header(auth_header)
 
-        decoded_header = self.decode_base64_authorization_header(bs64_header)
+        d_header = self.decode_base64_authorization_header(bs64_header)
 
-        user_email, user_pwd = self.extract_user_credentials(decoded_header)
+        user_email, user_pwd = self.extract_user_credentials(d_header)
 
         user = self.user_object_from_credentials(user_email, user_pwd)
 
