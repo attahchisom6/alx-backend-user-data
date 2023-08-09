@@ -55,6 +55,19 @@ def handle_before_request():
         abort(403)
     request.current_user = auth.current_user(request)
 
+def session_cookie(self, request=None):
+    """
+    method that returns cookie value from a request
+    """
+    if request is None:
+        return None
+
+    session_name = os.getenv("SESSION_NAME")
+    cookie = request.cookie
+    cookie["_my_session_id"] = session_name
+
+    return cookie.get("_my_session_id")
+
 
 @app.errorhandler(404)
 def not_found(error):
