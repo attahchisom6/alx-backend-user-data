@@ -73,4 +73,4 @@ class Auth:
         if session_name is None:
             return None
 
-        return cookie.get("_my_session_id")
+        return cookie.get(session_name)
