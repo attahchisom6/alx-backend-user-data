@@ -43,7 +43,8 @@ def handle_before_request():
     api_list = [
             '/api/v1/status/',
             '/api/v1/unauthorized/',
-            '/api/v1/forbidden/'
+            '/api/v1/forbidden/',
+            '/api/v1/auth_session/login/'
         ]
     if not auth.require_auth(request.path, api_list):
         return
@@ -51,22 +52,13 @@ def handle_before_request():
     if auth.authorization_header(request) is None:
         abort(401)
 
+    if auth.authorization_header(request) and \
+            auth.session_cookie(request):
+        abort(401)
+
     if auth.current_user(request) is None:
         abort(403)
     request.current_user = auth.current_user(request)
-
-def session_cookie(self, request=None):
-    """
-    method that returns cookie value from a request
-    """
-    if request is None:
-        return None
-
-    session_name = os.getenv("SESSION_NAME")
-    cookie = request.cookie
-    cookie["_my_session_id"] = session_name
-
-    return cookie.get("_my_session_id")
 
 
 @app.errorhandler(404)
