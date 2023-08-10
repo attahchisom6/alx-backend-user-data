@@ -4,6 +4,7 @@ This module defines another authentication mechanism
 called a session authentication
 """
 from api.v1.auth.auth import Auth
+from models.user import User
 import uuid
 
 
@@ -40,3 +41,21 @@ class SessionAuth(Auth):
             return None
 
         return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """
+        method that overloads the 'current_user' method in the
+        parent class, returning a user id based on the cookie
+        _my_session_id
+        """
+        session_id = self.session_cookie(request)
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return None
+
+        user = User()
+        user = user.get(user_id)
+
+        if not user:
+            return None
+        return user

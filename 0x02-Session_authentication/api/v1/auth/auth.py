@@ -60,7 +60,8 @@ class Auth:
 
     def session_cookie(self, request=None):
         """
-        method that returns cookie value from a request
+        method that returns cookie value from a request,
+        Note: This value is often andi in our case a session id
         """
         if request is None:
             return None
