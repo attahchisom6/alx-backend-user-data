@@ -3,6 +3,7 @@
 This module defines another authentication mechanism
 called a session authentications
 """
+from typing import List TypeVar
 from api.v1.auth.auth import Auth
 from models.user import User
 import uuid
