@@ -35,8 +35,8 @@ def creat_user_login():
     for users in user_list:
         if not users.is_valid_password(password):
             return jsonify({"error": "wrong password"}), 401
-
-        users_with_password.append(users)
+        else:
+            users_with_password.append(users)
     user = users_with_password[0]
 
     session_id = auth.create_session(user.id)
