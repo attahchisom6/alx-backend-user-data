@@ -5,11 +5,12 @@ A view for all session authenication routes
 from flask import request, jsonify
 from api.v1.views import app_views
 from models.user import User
+from api.v1.app import auth
 import os
 
 
 @app_views.route("/auth_session/login", methods=["POST"], strict_slashes=False)
-def creat_user_login():
+def handle_user_login():
     """
     method to handles user login using session authentication
     """
@@ -47,3 +48,17 @@ def creat_user_login():
     response.set_cookie(session_name, session_id)
 
     return response
+
+
+@app_views.route("/auth_session/logout", methods=["DELETE"],
+                 strict_slashes=False)
+def logout_route():
+    """
+    a route to log a user out of the current session
+    """
+    if request is not None:
+        is_deleted = auth.delete_session(request)
+        if is_deleted is False:
+            abort(404)
+        return jsonify({}), 200
+    abort(404)
