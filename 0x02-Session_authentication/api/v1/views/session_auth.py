@@ -1,61 +1,49 @@
 #!/usr/bin/env python3
-""" Module of Session Auth
 """
+A view for all session authenication routes
+"""
+from flask import request, jsonify
 from api.v1.views import app_views
-from flask import abort, jsonify, request
 from models.user import User
-from os import getenv
+import os
 
 
-@app_views.route('/auth_session/logout',
-                 methods=['DELETE'],
-                 strict_slashes=False)
-def session_logout() -> str:
-    """ DELETE /api/v1/auth_session/logout
-    JSON body:
-    - session id
-    Return:
-      - Empty JSON
+@app_views.route("/auth_session/login", methods=["POST"], strict_slashes=False)
+def creat_user_login():
     """
-    from api.v1.app import auth
-
-    logout = auth.destroy_session(request)
-    if not logout:
-        abort(404)
-    return jsonify({}), 200
-
-
-@app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
-def session_login() -> str:
-    """ POST /api/v1/auth_session/login
-    JSON body:
-      - email
-      - password
-    Return:
-      - User object JSON represented
+    method to handles user login using session authentication
     """
+    email = request.form.get("email")
+    password = request.form.get("password")
 
-    user_email = request.form.get('email')
-    user_pswd = request.form.get('password')
+    email_error = {"error": "email missing"}
+    pwd_error = {"error": "password missing"}
 
-    if not user_email:
-        return jsonify({"error": "email missing"}), 400
-    if not user_pswd:
-        return jsonify({"error": "password missing"}), 400
+    if email is None or email == "":
+        return jsonify(email_error), 400
 
-    try:
-        search_users = User.search({'email': user_email})
-    except Exception:
-        return jsonify({"error": "no user found for this email"}), 404
-    if not search_users:
+    if password is None or password == "":
+        return jsonify(pwd_error), 400
+
+    user = User()
+    user_list = user.search({"email": email})
+    if not user_list:
         return jsonify({"error": "no user found for this email"}), 404
 
-    user = search_users[0]
-    if not user.is_valid_password(user_pswd):
-        return jsonify({"error": "wrong password"}), 401
     from api.v1.app import auth
-    session_cookie = getenv("SESSION_NAME")
+    users_with_password = []
+    for users in user_list:
+        if not users.is_valid_password(password):
+            return jsonify({"error": "wrong password"}), 401
+        else:
+            users_with_password.append(users)
+    user = users_with_password[0]
+
     session_id = auth.create_session(user.id)
+
     response = jsonify(user.to_json())
-    response.set_cookie(session_cookie, session_id)
+
+    session_name = os.getenv("SESSION_NAME")
+    response.set_cookie(session_name, session_id)
+
     return response
