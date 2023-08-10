@@ -1,44 +1,42 @@
-# 0x07. Session authentication
-:open_file_folder: Specializations - Web Stack programming ― Back-end  
-:bust_in_silhouette: by Guillaume, CTO at Holberton School  
-:copyright: **[Holberton School](https://www.holbertonschool.com/)**  
-:bookmark:
+# Simple API
 
-## Background Context
-In this project, you will implement a Session Authentication. You are not allowed to install any other module.
+Simple HTTP API for playing with `User` model.
 
-## Resources
-### Read or watch:
-* [REST API Authentication Mechanisms - Only the session auth part](https://www.youtube.com/watch?v=501dpx2IjGY)
-* [HTTP Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cookie)
-* [Flask](https://palletsprojects.com/p/flask/)
-* [Flask Cookie](https://flask.palletsprojects.com/en/1.1.x/quickstart/#cookies)
 
-## Learning Objectives
-At the end of this project, you are expected to be able to [explain to anyone](https://fs.blog/2012/04/feynman-technique/), without the help of Google:
-### General
-* What authentication means
-* What session authentication means
-* What Cookies are
-* How to send Cookies
-* How to parse Cookies
+## Files
 
-## Requirements
-* A ```README.md``` file.
+### `models/`
 
-## Tasks
-* [x] 0. Et moi et moi et moi!
-* [x] 1. Empty session
-* [x] 2. Create a session
-* [x] 3. User ID from Session ID
-* [x] 4. Session cookie
-* [x] 5. Before request
-* [x] 6. Use Session ID for identifying a User
-* [x] 7. New view for Session Authentication
-* [x] 8. Logout
-* [ ] 9. Expiration?
-* [ ] 10. Sessions in database
+- `base.py`: base of all models of the API - handle serialization to file
+- `user.py`: user model
 
-## Software engineer
-Javier Andrés Garzón Patarroyo  
-:octocat: [GitHub](https://github.com/javierandresgp/)
+### `api/v1`
+
+- `app.py`: entry point of the API
+- `views/index.py`: basic endpoints of the API: `/status` and `/stats`
+- `views/users.py`: all users endpoints
+
+
+## Setup
+
+```
+$ pip3 install -r requirements.txt
+```
+
+
+## Run
+
+```
+$ API_HOST=0.0.0.0 API_PORT=5000 python3 -m api.v1.app
+```
+
+
+## Routes
+
+- `GET /api/v1/status`: returns the status of the API
+- `GET /api/v1/stats`: returns some stats of the API
+- `GET /api/v1/users`: returns the list of users
+- `GET /api/v1/users/:id`: returns an user based on the ID
+- `DELETE /api/v1/users/:id`: deletes an user based on the ID
+- `POST /api/v1/users`: creates a new user (JSON parameters: `email`, `password`, `last_name` (optional) and `first_name` (optional))
+- `PUT /api/v1/users/:id`: updates an user based on the ID (JSON parameters: `last_name` and `first_name`)
