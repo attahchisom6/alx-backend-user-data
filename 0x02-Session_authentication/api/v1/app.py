@@ -49,13 +49,8 @@ def handle_before_request():
     if not auth.require_auth(request.path, api_list):
         return
 
-    if auth.authorization_header(request) is None:
-        abort(401)
-
-    if auth.authorization_header(request):
-        return None
-
-    if auth.session_cookie(request):
+    if auth.authorization_header(request) is None and\
+            auth.session_cookie(request) is None:
         abort(401)
 
     if auth.current_user(request) is None:
