@@ -56,9 +56,7 @@ def logout_route():
     a route to log a user out of the current session
     """
     from api.v1.app import auth
-    if request is not None:
-        is_deleted = auth.delete_session(request)
-        if is_deleted is False:
-            abort(404)
-        return jsonify({}), 200
-    abort(404)
+    is_deleted = auth.delete_session(request)
+    if is_deleted is False:
+        abort(404)
+    return jsonify({}), 200
