@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """"
 This module defines another authentication mechanism
-called a session authentication
+called a session authentications
 """
 from api.v1.auth.auth import Auth
 from models.user import User
