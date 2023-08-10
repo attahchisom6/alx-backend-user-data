@@ -2,10 +2,10 @@
 """
 A view for all session authenication routes
 """
+import os
 from flask import request, jsonify
 from api.v1.views import app_views
 from models.user import User
-import os
 
 
 @app_views.route("/auth_session/login", methods=["POST"], strict_slashes=False)
@@ -33,10 +33,11 @@ def creat_user_login():
     from api.v1.app import auth
     users_with_password = []
     for users in user_list:
-        if not users.is_valid_password(password):
-            return jsonify({"error": "wrong password"}), 401
-        else:
+        if users.is_valid_password(password):
             users_with_password.append(users)
+    if not users_with_password:
+        return jsonify({"error": "wrong password"}), 401
+
     user = users_with_password[0]
 
     session_id = auth.create_session(user.id)
