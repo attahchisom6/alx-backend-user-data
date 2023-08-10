@@ -4,6 +4,7 @@ The authentication class is defined Here
 """
 from flask import request
 from typing import List, TypeVar
+import os
 
 
 class Auth:
@@ -56,3 +57,17 @@ class Auth:
         idenrifies with the current user
         """
         return None
+
+    def session_cookie(self, request=None) -> str:
+        """
+        method that returns cookie value from a request
+        """
+        if request is None:
+            return None
+
+        cookie = request.cookies
+        session_name = os.getenv("SESSION_NAME")
+        if session_name is None:
+            return None
+
+        return cookie.get("_my_session_id")
