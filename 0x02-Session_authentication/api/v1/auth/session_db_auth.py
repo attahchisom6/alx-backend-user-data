@@ -1,66 +1,52 @@
 #!/usr/bin/env python3
-"""
-module for session storage
+""" Use a Database to save the info
 """
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime
 
 
 class SessionDBAuth(SessionExpAuth):
+    """ Session to use a DB
     """
-    store user data and session to a file storage
-    """
+
     def create_session(self, user_id=None):
-        """
-        overloads the original method from the parent, return its own session
+        """ Create Session
         """
         if user_id is None:
             return None
 
         session_id = super().create_session(user_id)
-
         if session_id is None:
             return None
 
-        session_dictionary = {
-                "user_id": user_id,
-                "session_id": session_id
-                }
-
-        user_session = UserSession(**session_dictionary)
+        user_session = UserSession(**{'user_id': user_id,
+                                      'session_id': session_id})
         user_session.save()
 
         return session_id
 
     def user_id_for_session_id(self, session_id=None):
-        """
-        retrieve user id from its session_id for storage
+        """ Get the user id for session
         """
         if session_id is None:
             return None
 
         UserSession.load_from_file()
-        user_sessions = UserSession.search({"session_id": session_id})
+        session_ids = UserSession.search({'session_id': session_id})
 
-        if not user_sessions:
+        if not session_ids:
             return None
 
-        # we use the first item in the list becos we believe that the list
-        # returned only one unique session_id that we wantd
-        created_at = user_sessions[0].created_at
-
-        current_time = datetime.utcnow()
-        session_time = created_at + timedelta(seconds=self.session_duration)
-
-        if session_time < current_time:
+        if datetime.utcnow() > session_ids[0].created_at + timedelta(
+                seconds=self.session_duration
+        ):
             return None
 
-        return user_sessions[0].user_id
+        return session_ids[0].user_id
 
     def destroy_session(self, request=None):
-        """
-        destroy a user bases on the session id
+        """ Destroy the session
         """
         if request is None:
             return False
@@ -69,18 +55,18 @@ class SessionDBAuth(SessionExpAuth):
         if session_id is None:
             return False
 
-        user_id = self.user_id_for_session_id(user_id)
-        if user_id is None:
-            False
+        user_id = self.user_id_for_session_id(session_id)
+        if not user_id:
+            return False
 
-        user_sessions = UserSession.search({"session_id": session_id})
-
-        if user_sessions is None:
+        session_ids = UserSession.search({'session_id': session_id})
+        if not session_ids:
             return False
 
         try:
-            user_sessions[0].remove()
+            session_ids[0].remove()
             UserSession.save_to_file()
         except Exception:
             return False
+
         return True
