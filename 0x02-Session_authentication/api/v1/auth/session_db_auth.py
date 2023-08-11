@@ -1,72 +1,69 @@
-#!/usr/bin/env python3
-""" Use a Database to save the info
+#!/bin/env bash
+"""
+module for session storage
 """
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
-from datetime import timedelta, datetime
 
 
 class SessionDBAuth(SessionExpAuth):
-    """ Session to use a DB
     """
-
+    store user data and session to a file storage
+    """
     def create_session(self, user_id=None):
-        """ Create Session
+        """
+        overloads the original method from the parent, return its own session
         """
         if user_id is None:
             return None
 
         session_id = super().create_session(user_id)
+
         if session_id is None:
             return None
 
-        user_session = UserSession(**{'user_id': user_id,
-                                      'session_id': session_id})
+        session_dictionary = {
+                "user_id": user_id,
+                "session_id": session_id
+            }
+
+        user_session = UserSession(**session_dictionary)
         user_session.save()
 
         return session_id
 
     def user_id_for_session_id(self, session_id=None):
-        """ Get the user id for session
+        """
+        retrieve user id from its session_id for storage
         """
         if session_id is None:
             return None
 
-        UserSession.load_from_file()
-        session_ids = UserSession.search({'session_id': session_id})
+        user_sessions = UserSession.search({"session_id": session_id})
 
-        if not session_ids:
+        if user_sessions is None:
             return None
 
-        if datetime.utcnow() > session_ids[0].created_at + timedelta(
-                seconds=self.session_duration
-        ):
-            return None
+        # we use the first item in the list becos we believe that the list
+        # returned only one unique session_id that we want
+        user_id = user_sessions[0].user_id
 
-        return session_ids[0].user_id
+        return user_id
 
     def destroy_session(self, request=None):
-        """ Destroy the session
+        """
+        destroy a user bases on the session id
         """
         if request is None:
-            return False
+            return None
 
-        session_id = self.session_cookie(request)
+        session_id = super().session_cookie(request)
         if session_id is None:
-            return False
+            return None
 
-        user_id = self.user_id_for_session_id(session_id)
-        if not user_id:
-            return False
+        user_sessions = UserSession.search({"session_id": session_id})
 
-        session_ids = UserSession.search({'session_id': session_id})
-        if not session_ids:
-            return False
+        if user_sessions is None:
+            return None
 
-        try:
-            session_ids[0].remove()
-            UserSession.save_to_file()
-        except Exception:
-            return False
-
-        return True
+        user_sessions[0].remove()
