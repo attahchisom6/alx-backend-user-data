@@ -40,6 +40,7 @@ class SessionDBAuth(SessionExpAuth):
         if session_id is None:
             return None
 
+        UserSession.load_from_file()
         user_sessions = UserSession.search({"session_id": session_id})
 
         if user_sessions is None:
@@ -52,7 +53,7 @@ class SessionDBAuth(SessionExpAuth):
         if created_at is None:
             return None
 
-        current_time = datetime.now()
+        current_time = datetime.utcnow()
         session_time = created_at + timedelta(seconds=self.session_duration)
 
         if self.session_duration > 0 and session_time < current_time:
