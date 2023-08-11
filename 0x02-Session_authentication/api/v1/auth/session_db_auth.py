@@ -26,7 +26,7 @@ class SessionDBAuth(SessionExpAuth):
         session_dictionary = {
                 "user_id": user_id,
                 "session_id": session_id
-            }
+                }
 
         user_session = UserSession(**session_dictionary)
         user_session.save()
