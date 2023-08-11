@@ -72,7 +72,7 @@ class SessionDBAuth(SessionExpAuth):
         if request is None:
             return False
 
-        session_id = super().session_cookie(request)
+        session_id = self.session_cookie(request)
         if session_id is None:
             return False
 
