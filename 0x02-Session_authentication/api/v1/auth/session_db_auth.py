@@ -50,20 +50,13 @@ class SessionDBAuth(SessionExpAuth):
         # returned only one unique session_id that we wantd
         created_at = user_sessions[0].created_at
 
-        if created_at is None:
-            return None
-
         current_time = datetime.utcnow()
         session_time = created_at + timedelta(seconds=self.session_duration)
 
-        if self.session_duration > 0 and session_time < current_time:
+        if session_time < current_time:
             return None
 
         user_id = user_sessions[0].user_id
-        if user_id is None:
-            return None
-        if self.session_duration <= 0:
-            return user_id
         return user_id
 
     def destroy_session(self, request=None):
