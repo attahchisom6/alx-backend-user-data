@@ -3,7 +3,7 @@
 This module defines another authentication mechanism
 called a session authentications
 """
-from typing import List TypeVar
+from typing import List, TypeVar
 from api.v1.auth.auth import Auth
 from models.user import User
 import uuid
@@ -68,11 +68,12 @@ class SessionAuth(Auth):
         if request is None:
             return False
 
-        sesssion_id = self.session_cookie(request)
+        session_id = self.session_cookie(request)
         if session_id is None:
-            return None
+            return False
 
-        if self.user_id_by_session_id.get(session_id, None) is None:
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
             return False
 
         del self.user_id_by_session_id[session_id]
