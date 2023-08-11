@@ -4,6 +4,7 @@ module for session storage
 """
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
+from datetime import datetime, timedelta
 
 
 class SessionDBAuth(SessionExpAuth):
@@ -47,6 +48,16 @@ class SessionDBAuth(SessionExpAuth):
         # we use the first item in the list becos we believe that the list
         # returned only one unique session_id that we want
         user_id = user_sessions[0].user_id
+        created_at = self.session_dictionary["creted_at"]
+
+        if created_at is None:
+            return None
+
+        current_time = datetime.now()
+        session_time = created_at + timedelta(seconds=self.session_duration)
+
+        if self.session_duration > 0 and session_time < current_time:
+            return None
 
         return user_id
 
@@ -55,15 +66,15 @@ class SessionDBAuth(SessionExpAuth):
         destroy a user bases on the session id
         """
         if request is None:
-            return None
+            return False
 
         session_id = super().session_cookie(request)
         if session_id is None:
-            return None
+            return False
 
         user_sessions = UserSession.search({"session_id": session_id})
 
         if user_sessions is None:
-            return None
+            return False
 
         user_sessions[0].remove()
