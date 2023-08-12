@@ -1,62 +1,48 @@
 #!/usr/bin/env python3
+""" Module of Index views
 """
-A view for all session authenication routes
-"""
-from flask import request, jsonify
+from flask import jsonify, abort, request, make_response
 from api.v1.views import app_views
 from models.user import User
 import os
 
 
-@app_views.route("/auth_session/login", methods=["POST"], strict_slashes=False)
-def handle_user_login():
+@app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
+def auth_login():
+    """ Auth Login
     """
-    method to handles user login using session authentication
-    """
-    email = request.form.get("email")
-    password = request.form.get("password")
+    from api.v1.app import auth
 
-    email_error = {"error": "email missing"}
-    pwd_error = {"error": "password missing"}
+    email = request.form.get('email', None)
+    if email is None or len(email) == 0:
+        return jsonify({"error": "email missing"}), 400
 
-    if email is None or email == "":
-        return jsonify(email_error), 400
+    pwd = request.form.get('password')
+    if pwd is None or len(pwd) == 0:
+        return jsonify({"error": "password missing"}), 400
 
-    if password is None or password == "":
-        return jsonify(pwd_error), 400
-
-    user = User()
-    user_list = user.search({"email": email})
-    if not user_list:
+    users = User.search({"email": email})
+    if len(users) == 0:
         return jsonify({"error": "no user found for this email"}), 404
 
-    from api.v1.app import auth
-    users_with_password = []
-    for users in user_list:
-        if not users.is_valid_password(password):
-            return jsonify({"error": "wrong password"}), 401
-        else:
-            users_with_password.append(users)
-    user = users_with_password[0]
+    for user in users:
+        if user.is_valid_password(pwd):
+            response = make_response(user.to_json())
+            SESSION_NAME = os.getenv('SESSION_NAME')
+            response.set_cookie(SESSION_NAME, auth.create_session(user.id))
+            return response
 
-    session_id = auth.create_session(user.id)
-
-    response = jsonify(user.to_json())
-
-    session_name = os.getenv("SESSION_NAME")
-    response.set_cookie(session_name, session_id)
-
-    return response
+    return jsonify({"error": "wrong password"}), 401
 
 
-@app_views.route("/auth_session/logout", methods=["DELETE"],
+@app_views.route('/auth_session/logout', methods=['DELETE'],
                  strict_slashes=False)
-def logout_route():
-    """
-    a route to log a user out of the current session
+def logout_session():
+    """ Logout Session
     """
     from api.v1.app import auth
-    is_deleted = auth.destroy_session(request)
-    if is_deleted is False:
-        abort(404)
+
+    if auth.destroy_session(request) is False:
+        abort(401)
+
     return jsonify({}), 200
