@@ -43,7 +43,7 @@ class SessionDBAuth(SessionExpAuth):
         UserSession.load_from_file()
         user_sessions = UserSession.search({"session_id": session_id})
 
-        if not user_sessions:
+        if user_sessions is None:
             return None
 
         # we use the first item in the list becos we believe that the list
