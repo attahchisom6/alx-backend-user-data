@@ -12,35 +12,15 @@ from user import Base, User
 
 
 class DB:
-    """DB class
     """
-
-    def __init__(self) -> None:
-        """Initialize a new DB instance
+    storage class
+    """
+    def __init__(self): -> None:
+        """
+        inittializing storage engine
         """
         self._engine = create_engine("sqlite:///a.db", echo=True)
+
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
-        self.__session = None
-
-    @property
-    def _session(self) -> Session:
-        """Memoized session object
-        """
-        if self.__session is None:
-            DBSession = sessionmaker(bind=self._engine)
-            self.__session = DBSession()
-        return self.__session
-
-    def add_user(self, email: str, hashed_password: str) -> User:
-        """
-        a method to add a user to the database: no validation needed
-        """
-        db = self._session()
-        new_user = User(email=email, hashed_password=hashed_password)
-
-        db.add(new_user)
-        db.commit()
-        db.close()
-
-        return new_user
+        self._session = sessionmaker()
