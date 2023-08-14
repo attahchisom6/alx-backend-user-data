@@ -24,3 +24,10 @@ class DB:
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self._session = sessionmaker()
+
+    @property
+    def _session(self) -> session:
+        """
+        a getter method to return a session
+        """
+        if self._session is None:
