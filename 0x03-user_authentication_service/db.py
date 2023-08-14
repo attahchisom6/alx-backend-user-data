@@ -7,6 +7,7 @@ from sqlalchemy.exc import NoResultFound, InvalidRequestError, MultipleResultsFo
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+import bcrypt
 
 from user import Base, User
 
@@ -80,3 +81,10 @@ class DB:
             db.commit()
         except Exception:
             pass
+
+    def hash_password(self, password: str) -> bytes:
+        """
+        method that converts a stringed password to a hashed bytes
+        password
+        """
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
