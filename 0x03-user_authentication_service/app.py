@@ -11,7 +11,7 @@ Auth = Auth()
 
 
 @app.route("/", methods=["GET"], strict_slashes=False)
-def json_message():
+def json_message() -> str:
     """
     return json message
     """
