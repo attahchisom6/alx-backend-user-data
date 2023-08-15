@@ -17,7 +17,7 @@ def _hash_password(password: str) -> bytes:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
 
-def _generate_uuid():
+def _generate_uuid() -> str:
 
     """
     generate a string uuid identify private to this module and
