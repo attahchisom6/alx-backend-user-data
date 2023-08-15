@@ -1,59 +1,69 @@
 #!/usr/bin/env python3
-"""
-simple flask application
-"""
-from flask import Flask, jsonify, request, abort
+""" Route module for the API """
+
+from flask import Flask, jsonify, request,  abort, redirect, url_for
+from sqlalchemy.orm.exc import NoResultFound
 from auth import Auth
 
 
 app = Flask(__name__)
-Auth = Auth()
+AUTH = Auth()
 
 
-@app.route("/", methods=["GET"], strict_slashes=False)
-def json_message():
-    """
-    return json message
+@app.route('/', methods=['GET'], strict_slashes=False)
+def status() -> str:
+    """ GET /status
+    Return:
+      - JSON payload
     """
     return jsonify({"message": "Bienvenue"})
 
 
-@app.route("/users", methods=["POST"], strict_slashes=False)
-def users() -> str:
+@app.route('/users', methods=['POST'], strict_slashes=False)
+def new_user() -> str:
+    """ POST /users
+    Registers new user with email and pswd in request form-data,
+    or finds if user already registered based on email
+    Return:
+      - JSON payload
     """
-    a route/endpoint to register users
-    """
+
+    # Get data from form request, change to request.get_json() for body
     email = request.form.get("email")
     password = request.form.get("password")
+
     try:
-        user = Auth.register_user(email, password)
-        return jsonify(
-                {
-                    "email": user.email,
-                    "message": "user created"
-                    }
-                )
+        new_user = AUTH.register_user(email, password)
+        if new_user is not None:
+            return jsonify({
+                "email": new_user.email,
+                "message": "user created"
+            })
     except ValueError:
-        return jsonify({"message": "email already registered"}), 400
+        return jsonify({
+            "message": "email already registered"
+            }), 400
 
 
-@app.route("/sessions", methods=["POST"], strict_slashes=False)
+@app.route('/sessions', methods=['POST'], strict_slashes=False)
 def login() -> str:
-    """"
-    creates a swssion id for the user, if the user login
-    parameters are accurate
+    """ POST /sessions
+    Creates new session for user, stores as cookie
+    Email and pswd fields in x-www-form-urlencoded request
+    Return:
+      - JSON payload
     """
     email = request.form.get("email")
     password = request.form.get("password")
+    valid_user = AUTH.valid_login(email, password)
 
-    if not Auth.valid_login(email, password):
+    if not valid_user:
         abort(401)
-
-    session_id = Auth.create_session(email)
-    response = jsonify({"email": email, "message": "logged in"})
+    session_id = AUTH.create_session(email)
+    message = {"email": email, "message": "logged in"}
+    response = jsonify(message)
     response.set_cookie("session_id", session_id)
     return response
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
