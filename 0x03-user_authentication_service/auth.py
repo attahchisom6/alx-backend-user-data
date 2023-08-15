@@ -40,7 +40,7 @@ class Auth:
         """
         checks if the user instance loggin in is a valid user
         """
-        user = self.find_user_by(email=email)
+        user = self._db.find_user_by(email=email)
         if user:
             is_valid = bcrypt.checkpw(password.encode("utf-8"), user.hashed_password)
             if is_valid:
