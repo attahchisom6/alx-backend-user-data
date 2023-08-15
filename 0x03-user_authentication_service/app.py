@@ -4,7 +4,6 @@ simple flask application
 """
 from flask import Flask, jsonify, request, abort
 from auth import Auth
-from user import User
 
 
 app = Flask(__name__)
