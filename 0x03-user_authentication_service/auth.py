@@ -3,10 +3,10 @@
 This module defines everything we use for authentication
 """
 import bcrypt
-import uuid
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4
 
 
 def _hash_password(password: str) -> bytes:
@@ -23,7 +23,7 @@ def _generate_uuid() -> str:
     generate a string uuid identify private to this module and
     shoudn't  be used outside it
     """
-    return str(uuid.uuid4())
+    return str(uuid4())
 
 
 class Auth:
@@ -49,6 +49,11 @@ class Auth:
     def valid_login(self, email: str, password: str) -> bool:
         """
         checks if the user instance loggin in is a valid user
+        Args:
+            email: user email
+            password: password
+        Return:
+            True if email and password are valid
         """
         try:
             user = self._db.find_user_by(email=email)
