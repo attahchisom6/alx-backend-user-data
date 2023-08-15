@@ -30,14 +30,12 @@ class Auth:
         db = self._db._session
         try:
             user = self._db.find_user_by(email=email)
-            if user:
-                raise ValueError("{} already exists".format(email))
+            raise ValueError("{} already exists".format(email))
 
+        except NoResultFound:
             hashed_password = self._hash_password(password)
             new_user = User(email=email, hashed_password=hashed_password)
 
             db.add(new_user)
             db.commit()
             return new_user
-        except Exception:
-            pass
