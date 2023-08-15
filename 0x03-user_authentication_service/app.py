@@ -11,9 +11,9 @@ Auth = Auth()
 
 
 @app.route("/", methods=["GET"], strict_slashes=False)
-def json_message() -> str:
+def welcome_message() -> str:
     """
-    return json message
+    return json message, precisely a welcome message
     """
     return jsonify({"message": "Bienvenue"})
 
