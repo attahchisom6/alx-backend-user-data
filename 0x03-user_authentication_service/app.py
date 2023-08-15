@@ -7,7 +7,7 @@ from auth import Auth
 
 
 app = Flask(__name__)
-Auth = Auth()
+AUTH = Auth()
 
 
 @app.route("/", methods=["GET"], strict_slashes=False)
@@ -26,7 +26,7 @@ def users() -> str:
     email = request.form.get("email")
     password = request.form.get("password")
     try:
-        user = Auth.register_user(email, password)
+        user = AUTH.register_user(email, password)
         return jsonify(
                 {
                     "email": user.email,
@@ -46,10 +46,10 @@ def login() -> str:
     email = request.form.get("email")
     password = request.form.get("password")
 
-    if not Auth.valid_login(email, password):
+    if not AUTH.valid_login(email, password):
         abort(401)
 
-    session_id = Auth.create_session(email)
+    session_id = AUTH.create_session(email)
     response = jsonify({"email": email, "message": "logged in"})
     response.set_cookie("session_id", session_id)
     return response
