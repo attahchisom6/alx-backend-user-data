@@ -60,12 +60,12 @@ class DB:
         db = self._session
         try:
             users = db.query(User)
-            user = users.filter_by(**kwargs)
-            if not user:
-                raise InvalidRequestError
-            return user
-        except NoResultFound:
+            user = users.filter_by(**kwargs).first()
+        except TypeError:
+            raise InvalidRequestError
+        if user is None:
             raise NoResultFound
+        return user
 
     def update_user(self, user_id: int, **kwargs: dict) -> None:
         """
