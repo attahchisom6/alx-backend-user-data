@@ -80,4 +80,4 @@ class DB:
                 setattr(user, key, value)
             db.commit()
         except Exception:
-            pass
+            raise ValueError
