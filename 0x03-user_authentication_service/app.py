@@ -2,7 +2,7 @@
 """
 simple flask application
 """
-from flask import Flask, jsonify, request, abort
+from flask import abort, Flask, jsonify, redirect, request
 from auth import Auth
 
 
@@ -22,8 +22,8 @@ def welcome_message() -> str:
 def users() -> str:
     """Method that registers a user.
 
-    Returns:
-        string : JSON payload
+    Retur
+        tring : JSON payload
     """
     email = request.form.get('email')
     password = request.form.get('password')
