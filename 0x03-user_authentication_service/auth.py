@@ -42,7 +42,7 @@ class Auth:
         """
         user = self.find_user_by(email=email)
         if user:
-            is_valid = bcrypt.checkpw(password.encode("utf-8"), password)
+            is_valid = bcrypt.checkpw(password.encode("utf-8"), user.hashed_password)
             if is_valid:
                 return True
         return False
