@@ -10,10 +10,12 @@ app = Flask(__name__)
 Auth = Auth()
 
 
-@app.route("/", methods=["GET"], strict_slashes=False)
-def welcome_message() -> str:
-    """
-    return json message, precisely a welcome message
+@app.route('/', methods=['GET'], strict_slashes=False)
+def index() -> str:
+    """Method that returns a JSON payload.
+
+    Returns:
+        string : JSON payload
     """
     return jsonify({"message": "Bienvenue"})
 
