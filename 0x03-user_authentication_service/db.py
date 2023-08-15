@@ -3,11 +3,10 @@
 """DB module
 """
 from sqlalchemy import create_engine
-from sqlalchemy.exc import NoResultFound, InvalidRequestError, MultipleResultsFound
+from sqlalchemy.exc import NoResultFound, InvalidRequestError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
-import bcrypt
 
 from user import Base, User
 
@@ -61,11 +60,11 @@ class DB:
         try:
             users = db.query(User)
             user = users.filter_by(**kwargs)
+            if not user:
+                raise InvalidRequestError
             return user
-        except Exception:
+        except NoResultFound:
             raise NoResultFound
-        except MutipleResultFound:
-            raise InvalidRequestError
 
     def update_user(self, user_id: int, **kwargs: dict) -> None:
         """
@@ -81,10 +80,3 @@ class DB:
             db.commit()
         except Exception:
             pass
-
-    def hash_password(self, password: str) -> bytes:
-        """
-        method that converts a stringed password to a hashed bytes
-        password
-        """
-        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
