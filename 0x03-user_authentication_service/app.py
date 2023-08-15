@@ -2,57 +2,57 @@
 """
 simple flask application
 """
-from flask import abort, Flask, jsonify, redirect, request
+from flask import Flask, jsonify, request, abort
 from auth import Auth
 
 
 app = Flask(__name__)
-AUTH = Auth()
+Auth = Auth()
 
 
-@app.route('/', methods=['GET'], strict_slashes=False)
-def index() -> str:
-    """Method that returns a JSON payload.
-
-    Returns:
-        string : JSON payload
+@app.route("/", methods=["GET"], strict_slashes=False)
+def json_message() -> str:
+    """
+    return json message
     """
     return jsonify({"message": "Bienvenue"})
 
 
-@app.route('/users', methods=['POST'], strict_slashes=False)
+@app.route("/users", methods=["POST"], strict_slashes=False)
 def users() -> str:
-    """Method that registers a user.
-
-    Retur
-        tring : JSON payload
     """
-    email = request.form.get('email')
-    password = request.form.get('password')
+    a route/endpoint to register users
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
     try:
-        user = AUTH.register_user(email, password)
-        return jsonify({"email": user.email, "message": "user created"})
+        user = Auth.register_user(email, password)
+        return jsonify(
+                {
+                    "email": user.email,
+                    "message": "user created"
+                    }
+                )
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
 
-@app.route('/sessions', methods=['POST'], strict_slashes=False)
+@app.route("/sessions", methods=["POST"], strict_slashes=False)
 def login() -> str:
-    """method that returns user payload
-
-    Returns:
-        str: message
+    """"
+    creates a swssion id for the user, if the user login
+    parameters are accurate
     """
     email = request.form.get("email")
     password = request.form.get("password")
 
-    if not AUTH.valid_login(email, password):
+    if not Auth.valid_login(email, password):
         abort(401)
 
-    session_id = AUTH.create_session(email)
-    res = jsonify({"email": f"{email}", "message": "logged in"})
-    res.set_cookie("session_id", session_id)
-    return res
+    session_id = Auth.create_session(email)
+    response = jsonify({"email": email, "message": "logged in"})
+    response.set_cookie("session_id", session_id)
+    return response
 
 
 if __name__ == "__main__":
