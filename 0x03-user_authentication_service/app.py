@@ -26,9 +26,9 @@ def users() -> str:
     email = request.form.get("email")
     password = request.form.get("password")
     try:
-        if user
-        user = Auth.register_user(email, password)
-        return jsonify({"email": user.email, "message": "user created"})
+        if user is not None:
+            user = Auth.register_user(email, password)
+            return jsonify({"email": user.email, "message": "user created"})
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
@@ -46,7 +46,7 @@ def login() -> str:
         abort(401)
 
     session_id = Auth.create_session(email)
-    response = jsonify({"email": "{}".format(email), "message": "logged in"})
+    response = jsonify({"email": email, "message": "logged in"})
     response.set_cookie("session_id", session_id)
     return response
 
