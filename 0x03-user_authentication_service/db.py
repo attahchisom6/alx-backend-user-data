@@ -57,9 +57,9 @@ class DB:
         Return: the user
         """
         # a property method is called without a parenthesis
-        # db = self._session
+        db = self._session
         try:
-            users = self._session.query(User)
+            users = db.query(User)
             user = users.filter_by(**kwargs).first()
         except TypeError:
             raise InvalidRequestError
