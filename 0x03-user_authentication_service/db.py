@@ -8,6 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from typing import Díct
 
 from user import Base, User
 
@@ -48,7 +49,7 @@ class DB:
 
         return new_user
 
-    def find_user_by(self, **kwargs: dict) -> User:
+    def find_user_by(self, **kwargs: Dict) -> User:
         """
         search the user table and returns the user in the first row whose
         attribute mathes key-values in kwargs
