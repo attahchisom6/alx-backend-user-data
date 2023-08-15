@@ -39,7 +39,7 @@ def users() -> str:
 
 
 @app.route("/sessions", methods=["POST"], strict_slashes=False)
-def login():
+def login() -> str:
     """"
     creates a swssion id for the user, if the user login
     parameters are accurate
