@@ -45,7 +45,7 @@ class DB:
 
         return new_user
 
-    def find_user_by(self, **kwargs: dict) -> User:
+    def find_user_by(self, **kwargs) -> User:
         """
         search the user table and returns the user in the first row whose
         attribute mathes key-values in kwargs
