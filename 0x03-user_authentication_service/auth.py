@@ -27,7 +27,6 @@ class Auth:
         """
         register a user and save to the database
         """
-        db = self._db._session
         try:
             user = self._db.find_user_by(email=email)
             raise ValueError("User {} already exists".format(email))
