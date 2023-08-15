@@ -53,8 +53,6 @@ def login():
             response = jsonify({"email": email, "message": "logged in"})
             response.set_cookie("session_id", session_id)
             return response
-        else:
-            abort(401)
     except ValueError:
         abort(401)
 
