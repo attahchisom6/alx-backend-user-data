@@ -5,7 +5,6 @@ simple flask application
 from flask import Flask, jsonify, request
 from auth import Auth
 from user import User
-from sqlalchemy.exc import NoResultFound
 
 
 app = Flask(__name__)
