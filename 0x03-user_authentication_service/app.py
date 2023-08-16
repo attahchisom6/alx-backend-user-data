@@ -20,7 +20,7 @@ def welcome_message() -> str:
 
 
 @app.route("/users", methods=["POST"], strict_slashes=False)
-def users() -> str:
+def register_user() -> str:
     """
     a route/endpoint to register users
     """
