@@ -116,8 +116,8 @@ class Auth:
         """
         try:
             user = self._db.find_user_by(reset_token=reset_token)
-        except ValueError:
-            abort(403)
+        except NoResultFound:
+            raise ValueError
 
         hashed_password = _hash_password(password)
         kwargs = {
