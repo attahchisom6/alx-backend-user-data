@@ -114,6 +114,9 @@ class Auth:
         """
         takes reset token and resets the password of the user
         """
+        if password is None or reset_token is None:
+            return None
+
         try:
             user = self._db.find_user_by(reset_token=reset_token)
         except NoResultFound:
@@ -126,4 +129,3 @@ class Auth:
             }
 
         self._db.update_user(user.id, **kwargs)
-        return None
