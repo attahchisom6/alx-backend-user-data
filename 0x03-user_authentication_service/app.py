@@ -4,6 +4,7 @@ simple flask application
 """
 from flask import Flask, jsonify, request, abort, redirect
 from auth import Auth
+from sqlalchemy.orm.exc import NoResultFound
 
 
 app = Flask(__name__)
@@ -67,12 +68,9 @@ def login() -> str:
 
         try:
             user = AUTH.get_user_from_session_id(session_id)
-            if user:
-                AUTH.destroy_session(user.id)
-                # note return redirect(url_for("welcome_message")) also works
-                return redirect("/")
-            else:
-                abort(403)
+            AUTH.destroy_session(user.id)
+            # note return redirect(url_for("welcome_message")) also works
+            return redirect("/")
         except NoResultFound:
             abort(403)
 
