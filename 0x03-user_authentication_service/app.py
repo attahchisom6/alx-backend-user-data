@@ -128,8 +128,9 @@ def update_password() -> str:
                     "email": email,
                     "message": "password updated"
                     }
-            )
-    except Exception:
+            ), 200
+
+    except ValueError:
         abort(403)
 
 
