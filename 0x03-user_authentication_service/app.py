@@ -81,13 +81,13 @@ def user_profile():
     """
     get the user or user using a session id
     """
+    session_id = request.cookies.get("session_id")
     try:
-        session_id = request.cookies.get("session_id")
         user = Auth.get_user_from_session_id(session_id)
         if user is None:
             abort(403)
         return jsonify({"email": user.email}), 200
-    except (NoResultFound, TypeError):
+    except NoResultFound:
         abort(403)
 
 
