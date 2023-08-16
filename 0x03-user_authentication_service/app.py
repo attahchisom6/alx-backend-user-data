@@ -66,9 +66,10 @@ def logout() -> None:
 
     try:
         user = AUTH.get_user_from_session_id(session_id)
-        AUTH.destroy_session(user.id)
-        # note return redirect(url_for("welcome_message")) also works
-        return redirect("/")
+        if user:
+            AUTH.destroy_session(user.id)
+            # note return redirect(url_for("welcome_message")) also works
+            return redirect("/")
     except NoResultFound:
         abort(403)
 
