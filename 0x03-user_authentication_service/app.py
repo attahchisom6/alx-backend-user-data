@@ -56,23 +56,21 @@ def login() -> str:
     return response
 
 
-@app.route("/sessions", methods=["DELETE"], strict_slashes=False):
+@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
+def logout() -> None:
     """
     a route to delete a session id pet user request
+    logs a user out of a session
     """
-    def logout() -> None:
-        """
-        logs a user out of a session
-        """
-        session_id = request.cookies.get("session_id")
+    session_id = request.cookies.get("session_id")
 
-        try:
-            user = AUTH.get_user_from_session_id(session_id)
-            AUTH.destroy_session(user.id)
-            # note return redirect(url_for("welcome_message")) also works
-            return redirect("/")
-        except NoResultFound:
-            abort(403)
+    try:
+        user = AUTH.get_user_from_session_id(session_id)
+        AUTH.destroy_session(user.id)
+        # note return redirect(url_for("welcome_message")) also works
+        return redirect("/")
+    except NoResultFound:
+        abort(403)
 
 
 if __name__ == "__main__":
