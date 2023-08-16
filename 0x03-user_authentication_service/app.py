@@ -2,7 +2,7 @@
 """
 simple flask application
 """
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, redirect
 from auth import Auth
 
 
@@ -11,9 +11,9 @@ AUTH = Auth()
 
 
 @app.route("/", methods=["GET"], strict_slashes=False)
-def json_message() -> str:
+def welcome_message() -> str:
     """
-    return json message
+    return json message, precisely a welcome message
     """
     return jsonify({"message": "Bienvenue"})
 
@@ -53,6 +53,28 @@ def login() -> str:
     response = jsonify({"email": email, "message": "logged in"})
     response.set_cookie("session_id", session_id)
     return response
+
+
+@app.route("/sessions", methods=["DELETE"], strict_slashes=False):
+    """
+    a route to delete a session id pet user request
+    """
+    def logout() -> None:
+        """
+        logs a user out of a session
+        """
+        session_id = request.cookies.get("session_id")
+
+        try:
+            user = AUTH.get_user_from_session_id(session_id)
+            if user:
+                AUTH.destroy_session(user.id)
+                # note return redirect(url_for("welcome_message")) also works
+                return redirect("/")
+            else:
+                abort(403)
+        except NoResultFound:
+            abort(403)
 
 
 if __name__ == "__main__":
